@@ -3,7 +3,7 @@ from app.rag_system.pdf_loader import (
     load_pdf_files,
     chunk_documents as create_text_chunks,
 )
-from app.rag_system.vector_store import load_or_save_vectorstore
+from app.rag_system.vector_store import load_vectorstore, save_vectorstore
 from app.config.settings import DB_FAISS_PATH
 
 from app.utils.logger import get_logger
@@ -15,12 +15,14 @@ logger = get_logger(__name__)
 def process_and_store_pdfs():
     try:
         logger.info("Making the vectorstore....")
-
+        db = load_vectorstore(DB_FAISS_PATH)
+        if db is not None:
+            logger.info("Vectorstore already exists")
+            return
         documents = load_pdf_files()
 
         text_chunks = create_text_chunks(documents)
-
-        load_or_save_vectorstore(None, text_chunks)
+        save_vectorstore(text_chunks)
 
         logger.info("Vectorstore created sucesfully....")
 

@@ -12,7 +12,6 @@ def get_embeddings_model(
 ):
     try:
         logger.info("Creating HuggingFace embeddings instance")
-        print(f"HF_TOKEN: {hf_token}")
         hf_embeddings = HuggingFaceEmbeddings(model_name=model_name)
         logger.info("HuggingFace embeddings instance created successfully")
         return hf_embeddings

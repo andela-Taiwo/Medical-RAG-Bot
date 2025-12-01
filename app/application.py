@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, session, redirect, url_for
+from app.config.settings import DB_FAISS_PATH
+from app.rag_system import vector_store
 from app.rag_system.retriever import create_qa_chain
 from dotenv import load_dotenv
+from app.rag_system import data_loader
 import os
 
 from markupsafe import Markup
@@ -58,4 +61,6 @@ def clear():
 
 
 if __name__ == "__main__":
+    # Build data pipeline
+    data_loader.process_and_store_pdfs()
     app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
