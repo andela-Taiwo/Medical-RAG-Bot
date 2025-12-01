@@ -17,6 +17,36 @@ pipeline {
             }
         }
 
+        stage('Build and Push Docker Image to ECR') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-token',
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                    script {
+                        // Ensure Docker daemon is running (DinD)
+                        sh 'ps aux | grep dockerd || dockerd &'
+                        sleep 10
+                        
+                        // Login to ECR
+                        sh """
+                            aws ecr get-login-password --region ${AWS_REGION} | \
+                            docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                        """
+                        
+                        // Build and push
+                        sh """
+                            docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG} .
+                            docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}
+                        """
+                    }
+                }
+            }
+        }
+
+
         stage('Build, Scan, and Push Docker Image to ECR') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-token']]) {
