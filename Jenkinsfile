@@ -6,6 +6,7 @@ pipeline {
         ECR_REPO = 'medical-rag'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '313901886195.dkr.ecr.us-east-1.amazonaws.com'
+        APP_RUNNER_ROLE = 'arn:aws:iam::313901886195:role/AppRunnerECRAccessRole'
         SERVICE_NAME = 'llmops-medical-service'
         SERVICE_REGION = 'us-east-1'
     }
