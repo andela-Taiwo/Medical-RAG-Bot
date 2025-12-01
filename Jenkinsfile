@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'eu-north-1'
+        AWS_REGION = 'us-east-1'
         ECR_REPO = 'medical-rag'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '313901886195.dkr.ecr.eu-north-1.amazonaws.com'
@@ -82,10 +82,10 @@ pipeline {
                         echo "Triggering deployment to AWS App Runner..."
 
                         sh """
-                        SERVICE_ARN=\$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${SERVICE_NAME}'].ServiceArn" --output text --region ${SERVICE_REGION})
+                        SERVICE_ARN=\$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${SERVICE_NAME}'].ServiceArn" --output text --region ${AWS_REGION})
                         echo "Found App Runner Service ARN: \$SERVICE_ARN"
 
-                        aws apprunner start-deployment --service-arn \$SERVICE_ARN --region ${SERVICE_REGION}
+                        aws apprunner start-deployment --service-arn \$SERVICE_ARN --region ${AWS_REGION}
                         """
                     }
                 }
