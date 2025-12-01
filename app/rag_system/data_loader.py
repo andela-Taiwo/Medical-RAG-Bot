@@ -20,7 +20,7 @@ def process_and_store_pdfs():
 
         text_chunks = create_text_chunks(documents)
 
-        load_or_save_vectorstore(text_chunks)
+        load_or_save_vectorstore(None, text_chunks)
 
         logger.info("Vectorstore created sucesfully....")
 

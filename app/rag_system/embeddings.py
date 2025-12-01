@@ -8,11 +8,12 @@ logger = get_logger(__name__)
 
 
 def get_embeddings_model(
-    model_name: str = "sentence-transformers/all-MiniLM-L6-v2", hf_token: str = HF_TOKEN
+    model_name: str = "all-MiniLM-L6-v2", hf_token: str = HF_TOKEN
 ):
     try:
         logger.info("Creating HuggingFace embeddings instance")
-        hf_embeddings = HuggingFaceEmbeddings(model_name=model_name, token=hf_token)
+        print(f"HF_TOKEN: {hf_token}")
+        hf_embeddings = HuggingFaceEmbeddings(model_name=model_name)
         logger.info("HuggingFace embeddings instance created successfully")
         return hf_embeddings
     except Exception as e:

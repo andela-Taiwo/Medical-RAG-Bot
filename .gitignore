@@ -1,0 +1,14 @@
+.env
+.venv/
+.DS_Store
+.pytest_cache
+.ruff_cache
+.vscode
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+rag_medical_bot.egg-info/
+__pycache__
+**/__pycache__/
+logs/

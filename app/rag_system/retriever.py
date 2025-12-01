@@ -2,8 +2,7 @@ from langchain_classic.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
 from .llm import get_groq_model
 from .vector_store import load_or_save_vectorstore
-
-# from .pdf_loader import chunk_documents
+from app.config.settings import DB_FAISS_PATH
 from app.utils.custom_exception import CustomException
 from app.utils.logger import get_logger
 
@@ -29,13 +28,11 @@ def set_custom_prompt(prompt_template: str = CUSTOM_PROMPT_TEMPLATE):
     )
 
 
-def create_qa_chain(
-    model: str = "llama-3.1-8b-instant", prompt_template: str = CUSTOM_PROMPT_TEMPLATE
-):
+def create_qa_chain():
     try:
         logger.info("Loading vectorstore")
 
-        db = load_or_save_vectorstore()
+        db = load_or_save_vectorstore(DB_FAISS_PATH)
 
         if db is None:
             error = CustomException("Failed to load vectorstore")
