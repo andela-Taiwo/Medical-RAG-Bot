@@ -63,4 +63,4 @@ def clear():
 if __name__ == "__main__":
     # Build data pipeline
     data_loader.process_and_store_pdfs()
-    app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

@@ -194,8 +194,9 @@ git push origin main
 ```bash
 docker exec -u root -it jenkins-dind bash
 apt install -y
-curl -LO https://github.com/aquasecurity/trivy/releases/download/v0.62.1/trivy_0.62.1_Linux-64bit.deb
-dpkg -i trivy_0.62.1_Linux-64bit.deb
+curl -LO https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-ARM64.deb
+
+dpkg -i trivy_0.67.2_Linux-ARM64.deb
 trivy --version
 exit
 ```
