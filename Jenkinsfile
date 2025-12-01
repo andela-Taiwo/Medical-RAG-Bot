@@ -83,7 +83,7 @@ pipeline {
 
                         echo "Triggering deployment to AWS App Runner..."
 
-                        sh """
+                        sh '''
                         # Deploy or update App Runner service
                         SERVICE_ARN=$(aws apprunner list-services \
                             --query "ServiceSummaryList[?ServiceName=='llmops-medical-service'].ServiceArn" \
@@ -120,7 +120,7 @@ pipeline {
                         echo "✅ Deployment initiated"
 
                         aws apprunner start-deployment --service-arn \$SERVICE_ARN --region ${AWS_REGION}
-                        """
+                        '''
                     }
                 }
             }
