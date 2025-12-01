@@ -71,81 +71,59 @@ pipeline {
             }
         }
 
-        stage('Deploy to App Runner') {
-            when {
-                expression { 
-                    try {
-                        withAWS(credentials: 'aws-token', region: 'us-east-1') {
-                            sh 'aws apprunner help > /dev/null 2>&1'
-                        }
-                        return true
-                    } catch (Exception e) {
-                        echo "App Runner service not available, skipping deployment"
-                        return false
-                    }
-                }
-            }
+        
+
+        stage('Deploy to AWS App Runner') {
             steps {
-                withAWS(credentials: 'aws-credentials', region: 'us-east-1') {
-                    sh '''
-                        # Get or create App Runner service
-                        SERVICE_ARN=$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='llmops-medical-service'].ServiceArn" --output text --region us-east-1 2>/dev/null || echo "")
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-token']]) {
+                    script {
+                        def accountId = sh(script: "aws sts get-caller-identity --query Account --output text", returnStdout: true).trim()
+                        def ecrUrl = "${accountId}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.ECR_REPO}"
+                        def imageFullTag = "${ecrUrl}:${IMAGE_TAG}"
+
+                        echo "Triggering deployment to AWS App Runner..."
+
+                        sh """
+                        # Deploy or update App Runner service
+                        SERVICE_ARN=$(aws apprunner list-services \
+                            --query "ServiceSummaryList[?ServiceName=='llmops-medical-service'].ServiceArn" \
+                            --output text 2>/dev/null || echo "")
                         
                         if [ -z "$SERVICE_ARN" ]; then
-                            echo "Creating new App Runner service..."
-                            # Create service if it doesn't exist
-                            aws apprunner create-service --service-name llmops-medical-service \
+                            echo "Creating App Runner service..."
+                            aws apprunner create-service \
+                                --service-name llmops-medical-service \
                                 --source-configuration '{
                                     "AuthenticationConfiguration": {
-                                        "AccessRoleArn": "arn:aws:iam::313901886195:role/AppRunnerECRAccessRole"
+                                        "AccessRoleArn": "${APP_RUNNER_ROLE}"
                                     },
                                     "ImageRepository": {
-                                        "ImageIdentifier": "313901886195.dkr.ecr.us-east-1.amazonaws.com/medical-rag:latest",
-                                        "ImageConfiguration": {},
+                                        "ImageIdentifier": "${ECR_REPO}:latest",
                                         "ImageRepositoryType": "ECR"
                                     }
                                 }' \
                                 --instance-configuration '{
                                     "Cpu": "1 vCPU",
                                     "Memory": "2 GB"
-                                }' \
-                                --region us-east-1
+                                }'
                         else
-                            echo "Updating existing App Runner service..."
-                            # Update service with new image
+                            echo "Updating App Runner service..."
                             aws apprunner update-service \
-                                --service-arn $SERVICE_ARN \
+                                --service-arn "$SERVICE_ARN" \
                                 --source-configuration '{
                                     "ImageRepository": {
-                                        "ImageIdentifier": "313901886195.dkr.ecr.us-east-1.amazonaws.com/medical-rag:latest"
+                                        "ImageIdentifier": "${ECR_REPO}:latest"
                                     }
-                                }' \
-                                --region us-east-1
+                                }'
                         fi
-                    '''
+                        
+                        echo "✅ Deployment initiated"
+
+                        aws apprunner start-deployment --service-arn \$SERVICE_ARN --region ${AWS_REGION}
+                        """
+                    }
                 }
             }
         }
-
-        // stage('Deploy to AWS App Runner') {
-        //     steps {
-        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-token']]) {
-        //             script {
-        //                 def accountId = sh(script: "aws sts get-caller-identity --query Account --output text", returnStdout: true).trim()
-        //                 def ecrUrl = "${accountId}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.ECR_REPO}"
-        //                 def imageFullTag = "${ecrUrl}:${IMAGE_TAG}"
-
-        //                 echo "Triggering deployment to AWS App Runner..."
-
-        //                 sh """
-        //                 SERVICE_ARN=\$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${SERVICE_NAME}'].ServiceArn" --output text --region ${AWS_REGION})
-        //                 echo "Found App Runner Service ARN: \$SERVICE_ARN"
-
-        //                 aws apprunner start-deployment --service-arn \$SERVICE_ARN --region ${AWS_REGION}
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
     }
 }
