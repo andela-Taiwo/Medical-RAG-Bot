@@ -7,7 +7,6 @@ pipeline {
         IMAGE_TAG = 'latest'
         SERVICE_NAME = 'llmops-medical-service'
     }
-313901886195.dkr.ecr.eu-north-1.amazonaws.com/medical-rag
     stages {
         stage('Clone GitHub Repo') {
             steps {
