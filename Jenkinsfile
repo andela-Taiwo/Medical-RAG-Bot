@@ -5,6 +5,7 @@ pipeline {
         AWS_REGION = 'eu-north-1'
         ECR_REPO = 'medical-rag'
         IMAGE_TAG = 'latest'
+        ECR_REGISTRY = '313901886195.dkr.ecr.eu-north-1.amazonaws.com'
         SERVICE_NAME = 'llmops-medical-service'
     }
     stages {
